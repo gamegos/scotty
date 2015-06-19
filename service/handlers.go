@@ -20,7 +20,7 @@ func (hnd *Handlers) CreateApp(w http.ResponseWriter, r *http.Request) {
 	var app storage.App
 
 	decoder := json.NewDecoder(r.Body)
-	
+
 	if err := decoder.Decode(&app); err != nil {
 		res.WriteError(w, 400, err.Error())
 		return
@@ -57,7 +57,7 @@ func (hnd *Handlers) GetApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
-	
+
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appId := vars["appId"]
@@ -65,7 +65,7 @@ func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
 	var postData storage.AddDeviceRequest
 
 	decoder := json.NewDecoder(r.Body)
-	
+
 	if err := decoder.Decode(&postData); err != nil {
 		res.WriteError(w, 400, err.Error())
 		return
@@ -90,9 +90,9 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 	channelId := vars["channelId"]
 
 	var f storage.AddSubscriberRequest
-	
+
 	decoder := json.NewDecoder(r.Body)
-	
+
 	if err := decoder.Decode(&f); err != nil {
 		res.WriteError(w, 400, err.Error())
 		return
@@ -130,7 +130,6 @@ func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 }
 
 func (hnd *Handlers) DeleteChannel(w http.ResponseWriter, r *http.Request) {

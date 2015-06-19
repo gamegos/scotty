@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"log"
-	"runtime"
 	"net/http"
+	"runtime"
 
-	"gitlab.fixb.com/mir/push/storage"
 	"gitlab.fixb.com/mir/push/service"
+	"gitlab.fixb.com/mir/push/storage"
 )
 
 func main() {

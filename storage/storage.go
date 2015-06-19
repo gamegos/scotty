@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"time"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"time"
 	// "errors"
 
 	"github.com/garyburd/redigo/redis"
@@ -17,7 +17,7 @@ func (stg *Storage) AddSubscriber(appId string, channelId string, subscriberIds 
 	conn := stg.pool.Get()
 	// todo: defer close
 	stg.AddChannel(appId, channelId)
-	subscribersKey := addPrefix("apps."+appId+".channels."+channelId+".subscribers")
+	subscribersKey := addPrefix("apps." + appId + ".channels." + channelId + ".subscribers")
 	tmpParams := append([]string{subscribersKey}, subscriberIds...)
 
 	params := make([]interface{}, len(tmpParams))
@@ -30,25 +30,25 @@ func (stg *Storage) AddSubscriber(appId string, channelId string, subscriberIds 
 
 func (stg *Storage) AddChannel(appId string, channelId string) {
 	conn := stg.pool.Get()
-	channelsKey := addPrefix("apps."+appId+".channels")
+	channelsKey := addPrefix("apps." + appId + ".channels")
 	conn.Do("SADD", channelsKey, channelId)
 }
 
 func (stg *Storage) DeleteChannel(appId string, channelId string) {
 	conn := stg.pool.Get()
-	channelsKey := addPrefix("apps."+appId+".channels")
+	channelsKey := addPrefix("apps." + appId + ".channels")
 	conn.Do("SREM", channelsKey, channelId)
 
-	channelKey := channelsKey+"."+channelId+".subscribers"
+	channelKey := channelsKey + "." + channelId + ".subscribers"
 	conn.Do("DEL", channelKey)
 }
 
 func (stg *Storage) AddSubscriberDevice(appId string, subscriberId string, device *Device) {
 	conn := stg.pool.Get()
-	subscribersKey := addPrefix("apps."+appId+".subscribers")
+	subscribersKey := addPrefix("apps." + appId + ".subscribers")
 	conn.Do("SADD", subscribersKey, subscriberId)
 
-	devicesKey := subscribersKey+"."+subscriberId+".devices"
+	devicesKey := subscribersKey + "." + subscriberId + ".devices"
 	jstring, _ := json.Marshal(device)
 	// todo: multiple devices with same platform and token should not be added
 	conn.Do("SADD", devicesKey, jstring)
@@ -73,14 +73,14 @@ func (stg *Storage) CreateApp(appId string, appData string) {
 	conn.Do("SET", appKey, appData)
 }
 
-func (stg *Storage) GetApp(appId string) (string,error) {
+func (stg *Storage) GetApp(appId string) (string, error) {
 	conn := stg.pool.Get()
 	appKey := addPrefix("apps") + "." + appId
 	value, err := redis.String(conn.Do("GET", appKey))
 	if err != nil {
-		return "",err
+		return "", err
 	}
-	return value,nil
+	return value, nil
 }
 
 func addPrefix(key string) string {

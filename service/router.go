@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
-	"github.com/gorilla/mux"
 
 	"gitlab.fixb.com/mir/push/storage"
 )
@@ -16,7 +16,7 @@ func WrapLogger(inner http.Handler, name string) http.Handler {
 		inner.ServeHTTP(w, r)
 		finish := time.Since(start)
 
-		log.Printf("%s\t%s\t%s\t%s", 
+		log.Printf("%s\t%s\t%s\t%s",
 			r.Method,
 			r.RequestURI,
 			name,
