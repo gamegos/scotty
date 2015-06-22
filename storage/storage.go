@@ -15,7 +15,8 @@ type Storage struct {
 
 func (stg *Storage) AddSubscriber(appId string, channelId string, subscriberIds []string) {
 	conn := stg.pool.Get()
-	// todo: defer close
+	defer conn.Close()
+
 	stg.AddChannel(appId, channelId)
 	subscribersKey := addPrefix("apps." + appId + ".channels." + channelId + ".subscribers")
 	tmpParams := append([]string{subscribersKey}, subscriberIds...)
@@ -30,12 +31,16 @@ func (stg *Storage) AddSubscriber(appId string, channelId string, subscriberIds 
 
 func (stg *Storage) AddChannel(appId string, channelId string) {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	channelsKey := addPrefix("apps." + appId + ".channels")
 	conn.Do("SADD", channelsKey, channelId)
 }
 
 func (stg *Storage) DeleteChannel(appId string, channelId string) {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	channelsKey := addPrefix("apps." + appId + ".channels")
 	conn.Do("SREM", channelsKey, channelId)
 
@@ -45,6 +50,8 @@ func (stg *Storage) DeleteChannel(appId string, channelId string) {
 
 func (stg *Storage) AddSubscriberDevice(appId string, subscriberId string, device *Device) {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	subscribersKey := addPrefix("apps." + appId + ".subscribers")
 	conn.Do("SADD", subscribersKey, subscriberId)
 
@@ -56,6 +63,8 @@ func (stg *Storage) AddSubscriberDevice(appId string, subscriberId string, devic
 
 func (stg *Storage) AppExists(appId string) bool {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	status, err := redis.Int(conn.Do("SISMEMBER", addPrefix("apps"), appId))
 	_ = err
 	if status == 0 {
@@ -67,6 +76,8 @@ func (stg *Storage) AppExists(appId string) bool {
 
 func (stg *Storage) CreateApp(appId string, appData string) {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	appsKey := addPrefix("apps")
 	conn.Do("SADD", appsKey, appId)
 	appKey := appsKey + "." + appId
@@ -75,6 +86,8 @@ func (stg *Storage) CreateApp(appId string, appData string) {
 
 func (stg *Storage) GetApp(appId string) (string, error) {
 	conn := stg.pool.Get()
+	defer conn.Close()
+
 	appKey := addPrefix("apps") + "." + appId
 	value, err := redis.String(conn.Do("GET", appKey))
 	if err != nil {
@@ -88,7 +101,6 @@ func addPrefix(key string) string {
 }
 
 func Init(conf *RedisConfig) *Storage {
-
 	stg := new(Storage)
 	pool := &redis.Pool{
 		MaxIdle:     conf.MaxIdle,
