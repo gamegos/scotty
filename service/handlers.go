@@ -28,16 +28,30 @@ func (hnd *Handlers) CreateApp(w http.ResponseWriter, r *http.Request) {
 
 	str, _ := json.Marshal(app)
 	hnd.stg.CreateApp(app.Id, string(str))
+
+	res.WriteSuccess(w, 201, "")
 }
 
 func (hnd *Handlers) UpdateApp(w http.ResponseWriter, r *http.Request) {
 
+	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appId := vars["appId"]
 
 	if hnd.stg.AppExists(appId) {
-		hnd.CreateApp(w, r)
+		var app storage.App
+		decoder := json.NewDecoder(r.Body)
+
+		if err := decoder.Decode(&app); err != nil {
+			res.WriteError(w, 400, err.Error())
+			return
+		}
+
+		str, _ := json.Marshal(app)
+		hnd.stg.CreateApp(app.Id, string(str))
 	}
+
+	res.WriteSuccess(w, 200, "")
 }
 
 func (hnd *Handlers) GetApp(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +93,7 @@ func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res.WriteSuccess(w, 200, "")
+	res.WriteSuccess(w, 201, "")
 }
 
 func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
@@ -104,10 +118,11 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 		res.WriteError(w, 400, "App not found")
 		return
 	}
+
+	res.WriteSuccess(w, 201, "")
 }
 
 func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
-
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appId := vars["appId"]
@@ -130,12 +145,16 @@ func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res.WriteSuccess(w, 201, "")
 }
 
 func (hnd *Handlers) DeleteChannel(w http.ResponseWriter, r *http.Request) {
+	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appId := vars["appId"]
 	channelId := vars["channelId"]
 
 	hnd.stg.DeleteChannel(appId, channelId)
+
+	res.WriteSuccess(w, 200, "")
 }
