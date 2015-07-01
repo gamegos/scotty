@@ -2,11 +2,11 @@ package service
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"gitlab.fixb.com/mir/push/storage"
 )
 

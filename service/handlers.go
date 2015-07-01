@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	// "fmt"
 	"net/http"
 	"time"
 
@@ -36,9 +35,9 @@ func (hnd *Handlers) UpdateApp(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
+	appID := vars["appId"]
 
-	if hnd.stg.AppExists(appId) {
+	if hnd.stg.AppExists(appID) {
 		var app storage.App
 		decoder := json.NewDecoder(r.Body)
 
@@ -58,9 +57,9 @@ func (hnd *Handlers) GetApp(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
+	appID := vars["appId"]
 
-	appData, err := hnd.stg.GetApp(appId)
+	appData, err := hnd.stg.GetApp(appID)
 
 	if err != nil {
 		res.WriteError(w, 404, "App not found")
@@ -74,7 +73,7 @@ func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
+	appID := vars["appId"]
 
 	var postData storage.AddDeviceRequest
 
@@ -85,9 +84,18 @@ func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if hnd.stg.AppExists(appId) {
-		device := storage.Device{postData.Platform, postData.Token, int(time.Now().Unix())}
-		hnd.stg.AddSubscriberDevice(appId, postData.SubscriberId, &device)
+	if hnd.stg.AppExists(appID) {
+		device := storage.Device{
+			Platform:  postData.Platform,
+			Token:     postData.Token,
+			CreatedAt: int(time.Now().Unix()),
+		}
+		err := hnd.stg.AddSubscriberDevice(appID, postData.SubscriberId, &device)
+
+		if err != nil {
+			res.WriteError(w, 500, err.Error())
+			return
+		}
 	} else {
 		res.WriteError(w, 400, "App not found")
 		return
@@ -100,8 +108,8 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
-	channelId := vars["channelId"]
+	appID := vars["appId"]
+	channelID := vars["channelId"]
 
 	var f storage.AddSubscriberRequest
 
@@ -112,8 +120,8 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if hnd.stg.AppExists(appId) {
-		hnd.stg.AddSubscriber(appId, channelId, f.SubscriberIds)
+	if hnd.stg.AppExists(appID) {
+		hnd.stg.AddSubscriber(appID, channelID, f.SubscriberIds)
 	} else {
 		res.WriteError(w, 400, "App not found")
 		return
@@ -125,7 +133,7 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
+	appID := vars["appId"]
 
 	var f interface{}
 
@@ -138,8 +146,8 @@ func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 
 	m := f.(map[string]interface{})
 
-	if hnd.stg.AppExists(appId) {
-		hnd.stg.AddChannel(appId, m["id"].(string))
+	if hnd.stg.AppExists(appID) {
+		hnd.stg.AddChannel(appID, m["id"].(string))
 	} else {
 		res.WriteError(w, 400, "App not found")
 		return
@@ -151,10 +159,10 @@ func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 func (hnd *Handlers) DeleteChannel(w http.ResponseWriter, r *http.Request) {
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
-	appId := vars["appId"]
-	channelId := vars["channelId"]
+	appID := vars["appId"]
+	channelID := vars["channelId"]
 
-	hnd.stg.DeleteChannel(appId, channelId)
+	hnd.stg.DeleteChannel(appID, channelID)
 
 	res.WriteSuccess(w, 200, "")
 }
