@@ -20,5 +20,6 @@ func main() {
 	stg := storage.Init(&conf.Redis)
 
 	router := service.NewRouter(stg)
+	log.Printf("Push service listening on %s", conf.Addr)
 	log.Fatal(http.ListenAndServe(conf.Addr, router))
 }
