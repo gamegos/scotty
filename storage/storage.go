@@ -96,6 +96,20 @@ func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDevi
 	return nil
 }
 
+func (stg *Storage) GetChannelSubscribers(appID string, channelID string) ([]string, error) {
+	conn := stg.pool.Get()
+	defer conn.Close()
+
+	key := addPrefix("apps." + appID + ".channels." + channelID + ".subscribers")
+	subscribers, err := redis.Strings(conn.Do("SMEMBERS", key))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return subscribers, nil
+}
+
 func (stg *Storage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
