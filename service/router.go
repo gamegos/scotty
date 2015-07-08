@@ -47,43 +47,43 @@ func NewRouter(stg *storage.Storage) *mux.Router {
 		Methods("GET").
 		Path("/apps/{appId}").
 		Name("Get App").
-		HandlerFunc(hnd.GetApp)
+		HandlerFunc(hnd.getApp)
 
 	router.
 		Methods("POST").
 		Path("/apps").
 		Name("Create App").
-		HandlerFunc(hnd.CreateApp)
+		HandlerFunc(hnd.createApp)
 
 	router.
 		Methods("PUT").
 		Path("/apps/{appId}").
 		Name("Update App").
-		HandlerFunc(hnd.UpdateApp)
+		HandlerFunc(hnd.updateApp)
 
 	router.
 		Methods("POST").
 		Path("/apps/{appId}/devices").
 		Name("Add Device to Subscriber").
-		HandlerFunc(hnd.AddDevice)
+		HandlerFunc(hnd.addDevice)
 
 	router.
 		Methods("POST").
 		Path("/apps/{appId}/channels").
 		Name("Add Channel to App").
-		HandlerFunc(hnd.AddChannel)
+		HandlerFunc(hnd.addChannel)
 
 	router.
 		Methods("DELETE").
 		Path("/apps/{appId}/channels/{channelId}").
 		Name("Delete Channel from App").
-		HandlerFunc(hnd.DeleteChannel)
+		HandlerFunc(hnd.deleteChannel)
 
 	router.
 		Methods("POST").
 		Path("/apps/{appId}/channels/{channelId}/subscribers").
 		Name("Add Subscriber to Channel").
-		HandlerFunc(hnd.AddSubscriber)
+		HandlerFunc(hnd.addSubscriber)
 
 	return router
 }

@@ -13,7 +13,7 @@ type Handlers struct {
 	stg *storage.Storage
 }
 
-func (hnd *Handlers) CreateApp(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) createApp(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	var app storage.App
@@ -31,7 +31,7 @@ func (hnd *Handlers) CreateApp(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 201, "")
 }
 
-func (hnd *Handlers) UpdateApp(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) updateApp(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
@@ -53,7 +53,7 @@ func (hnd *Handlers) UpdateApp(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 200, "")
 }
 
-func (hnd *Handlers) GetApp(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) getApp(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
@@ -69,7 +69,7 @@ func (hnd *Handlers) GetApp(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 200, appData)
 }
 
-func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) addDevice(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
@@ -104,7 +104,7 @@ func (hnd *Handlers) AddDevice(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 201, "")
 }
 
-func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) addSubscriber(w http.ResponseWriter, r *http.Request) {
 
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
@@ -130,7 +130,7 @@ func (hnd *Handlers) AddSubscriber(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 201, "")
 }
 
-func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) addChannel(w http.ResponseWriter, r *http.Request) {
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appID := vars["appId"]
@@ -156,7 +156,7 @@ func (hnd *Handlers) AddChannel(w http.ResponseWriter, r *http.Request) {
 	res.WriteSuccess(w, 201, "")
 }
 
-func (hnd *Handlers) DeleteChannel(w http.ResponseWriter, r *http.Request) {
+func (hnd *Handlers) deleteChannel(w http.ResponseWriter, r *http.Request) {
 	res := new(WrappedResponse)
 	vars := mux.Vars(r)
 	appID := vars["appId"]
