@@ -1,24 +1,24 @@
 package service
 
 import (
-	//"fmt"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"gitlab.fixb.com/mir/push/storage"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"gitlab.fixb.com/mir/push/storage"
 )
 
-var appId, initialData, updatedData, channelId string
+var appID, initialData, updatedData, channelID string
 var respRec *httptest.ResponseRecorder
 var router *mux.Router
 
 func setup() {
-	appId = "testapp"
+	appID = "testapp"
 	initialData = `{
-	    "id": "` + appId + `",
+	    "id": "` + appID + `",
 	    "platforms": {
 	        "apns": {
 	            "certificate": "apnscertificate",
@@ -32,7 +32,7 @@ func setup() {
 	}`
 	updatedData = `
 	{
-	    "id": "` + appId + `",
+	    "id": "` + appID + `",
 	    "platforms": {
 	        "apns": {
 	            "certificate": "updatedapnscertificate",
@@ -44,7 +44,7 @@ func setup() {
 	        }
 	    }
 	}`
-	channelId = "someRandomChannelId"
+	channelID = "someRandomchannelID"
 
 	respRec = httptest.NewRecorder()
 	confFile := "../default.conf"
@@ -76,7 +76,7 @@ func TestUpdateApp(t *testing.T) {
 	setup()
 
 	postBody := strings.NewReader(updatedData)
-	req, err := http.NewRequest("PUT", "/apps/"+appId, postBody)
+	req, err := http.NewRequest("PUT", "/apps/"+appID, postBody)
 
 	if err != nil {
 		t.Error(err)
@@ -92,7 +92,7 @@ func TestUpdateApp(t *testing.T) {
 func TestGetApp(t *testing.T) {
 	setup()
 
-	req, err := http.NewRequest("GET", "/apps/"+appId, nil)
+	req, err := http.NewRequest("GET", "/apps/"+appID, nil)
 
 	if err != nil {
 		t.Error(err)
@@ -129,7 +129,7 @@ func TestAddDevice(t *testing.T) {
 	setup()
 
 	postBody := strings.NewReader(`{"subscriberId": "randomSubId", "platform": "apns", "token": "foo123"}`)
-	req, err := http.NewRequest("POST", "/apps/"+appId+"/devices", postBody)
+	req, err := http.NewRequest("POST", "/apps/"+appID+"/devices", postBody)
 
 	if err != nil {
 		t.Error(err)
@@ -145,8 +145,8 @@ func TestAddDevice(t *testing.T) {
 func TestAddChannel(t *testing.T) {
 	setup()
 
-	postBody := strings.NewReader(`{"id": "` + channelId + `"}`)
-	req, err := http.NewRequest("POST", "/apps/"+appId+"/channels", postBody)
+	postBody := strings.NewReader(`{"id": "` + channelID + `"}`)
+	req, err := http.NewRequest("POST", "/apps/"+appID+"/channels", postBody)
 
 	if err != nil {
 		t.Error(err)
@@ -163,7 +163,7 @@ func TestAddSubscriber(t *testing.T) {
 	setup()
 
 	postBody := strings.NewReader(`{"subscribers": ["foo", "bar"]}`)
-	req, err := http.NewRequest("POST", "/apps/"+appId+"/channels/"+channelId+"/subscribers", postBody)
+	req, err := http.NewRequest("POST", "/apps/"+appID+"/channels/"+channelID+"/subscribers", postBody)
 
 	if err != nil {
 		t.Error(err)
@@ -179,7 +179,7 @@ func TestAddSubscriber(t *testing.T) {
 func TestDeleteChannel(t *testing.T) {
 	setup()
 
-	req, err := http.NewRequest("DELETE", "/apps/"+appId+"/channels/"+channelId, nil)
+	req, err := http.NewRequest("DELETE", "/apps/"+appID+"/channels/"+channelID, nil)
 
 	if err != nil {
 		t.Error(err)

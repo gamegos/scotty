@@ -2,33 +2,17 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"gitlab.fixb.com/mir/push/storage"
 )
 
-func WrapLogger(inner http.Handler, name string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		inner.ServeHTTP(w, r)
-		finish := time.Since(start)
-
-		log.Printf("%s\t%s\t%s\t%s",
-			r.Method,
-			r.RequestURI,
-			name,
-			finish,
-		)
-	})
-}
-
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func healthCheck(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "OK")
 }
 
+// NewRouter creates and returns the router.
 func NewRouter(stg *storage.Storage) *mux.Router {
 
 	hnd := new(Handlers)
@@ -36,7 +20,7 @@ func NewRouter(stg *storage.Storage) *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	healthHandler := http.HandlerFunc(HealthCheck)
+	healthHandler := http.HandlerFunc(healthCheck)
 	router.
 		Methods("GET").
 		Path("/health").

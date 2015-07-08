@@ -10,10 +10,12 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// Storage records and retrieves data from data storage.
 type Storage struct {
 	pool *redis.Pool
 }
 
+// AddSubscriber adds new subscriber to channel.
 func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs []string) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -30,6 +32,7 @@ func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs 
 	conn.Do("SADD", params...)
 }
 
+// AddChannel adds new channel to app.
 func (stg *Storage) AddChannel(appID string, channelID string) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -38,6 +41,7 @@ func (stg *Storage) AddChannel(appID string, channelID string) {
 	conn.Do("SADD", channelsKey, channelID)
 }
 
+// DeleteChannel deletes channel and its subscribers from app.
 func (stg *Storage) DeleteChannel(appID string, channelID string) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -49,6 +53,7 @@ func (stg *Storage) DeleteChannel(appID string, channelID string) {
 	conn.Do("DEL", channelKey)
 }
 
+// AddSubscriberDevice adds new device to subscriber.
 func (stg *Storage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -67,6 +72,7 @@ func (stg *Storage) AddSubscriberDevice(appID string, subscriberID string, devic
 	return nil
 }
 
+// UpdateDeviceToken updates token of a subscriber's device.
 func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDeviceToken string, newDeviceToken string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -96,6 +102,7 @@ func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDevi
 	return nil
 }
 
+// GetChannelSubscribers gets subscribers of a channel.
 func (stg *Storage) GetChannelSubscribers(appID string, channelID string) ([]string, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -110,6 +117,7 @@ func (stg *Storage) GetChannelSubscribers(appID string, channelID string) ([]str
 	return subscribers, nil
 }
 
+// GetSubscriberDevices gets devices of a subscriber.
 func (stg *Storage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -133,6 +141,7 @@ func (stg *Storage) GetSubscriberDevices(appID string, subscriberID string) ([]D
 	return response, nil
 }
 
+// AppExists tells whether an app exists or not.
 func (stg *Storage) AppExists(appID string) bool {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -146,6 +155,7 @@ func (stg *Storage) AppExists(appID string) bool {
 	return true
 }
 
+// CreateApp creates a new app.
 func (stg *Storage) CreateApp(appID string, appData string) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -156,6 +166,7 @@ func (stg *Storage) CreateApp(appID string, appData string) {
 	conn.Do("SET", appKey, appData)
 }
 
+// GetApp gets an app's data.
 func (stg *Storage) GetApp(appID string) (string, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
@@ -172,6 +183,7 @@ func addPrefix(key string) string {
 	return fmt.Sprintf("srv.push.%s", key)
 }
 
+// Init initializes storage with the given config.
 func Init(conf *RedisConfig) *Storage {
 	stg := new(Storage)
 	pool := &redis.Pool{

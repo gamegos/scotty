@@ -5,9 +5,10 @@ import (
 	"net/http"
 )
 
-const STATUS_SUCCESS = "success"
-const STATUS_ERROR = "error"
+const statusSuccess = "success"
+const statusError = "error"
 
+// WrappedResponse holds a response data.
 type WrappedResponse struct {
 	Code    int         `json:"code"`
 	Status  string      `json:"status"`
@@ -15,14 +16,17 @@ type WrappedResponse struct {
 	Message string      `json:"message,omitempty"`
 }
 
+// WriteSuccess sends response in case of success.
 func (res *WrappedResponse) WriteSuccess(w http.ResponseWriter, code int, data interface{}) {
 	res.Write(w, code, data, "")
 }
 
+// WriteError sends response in case of error.
 func (res *WrappedResponse) WriteError(w http.ResponseWriter, code int, msg string) {
 	res.Write(w, code, nil, msg)
 }
 
+// Write writes the response to the ResponseWriter.
 func (res *WrappedResponse) Write(w http.ResponseWriter, code int, data interface{}, msg string) {
 	res.Code = code
 
@@ -31,15 +35,15 @@ func (res *WrappedResponse) Write(w http.ResponseWriter, code int, data interfac
 	}
 
 	if code >= 200 && code < 300 {
-		res.Status = STATUS_SUCCESS
+		res.Status = statusSuccess
 		res.Data = data
 	} else {
-		res.Status = STATUS_ERROR
+		res.Status = statusError
 	}
 
-	bodyJson, _ := json.Marshal(res)
+	bodyJSON, _ := json.Marshal(res)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(bodyJson)
+	w.Write(bodyJSON)
 }

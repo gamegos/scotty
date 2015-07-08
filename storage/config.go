@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// RedisConfig holds config data for Redis connection.
 type RedisConfig struct {
 	Network     string `json:"network"`
 	Addr        string `json:"addr"`
@@ -15,11 +16,13 @@ type RedisConfig struct {
 	Wait        bool   `json:"wait"`
 }
 
+// Config holds general config data.
 type Config struct {
 	Addr  string      `json:"addr"`
 	Redis RedisConfig `json:"redis"`
 }
 
+// Load imports config data from file into Config struct.
 func (conf *Config) Load(confFile *os.File) error {
 	decoder := json.NewDecoder(confFile)
 
@@ -30,11 +33,7 @@ func (conf *Config) Load(confFile *os.File) error {
 	return nil
 }
 
-func (conf *Config) ToJson() []byte {
-	dat, _ := json.Marshal(conf)
-	return dat
-}
-
+// InitConfig prepares config file.
 func InitConfig(configFile string) Config {
 	file, err := os.Open(configFile)
 	if err != nil {

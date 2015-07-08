@@ -9,6 +9,7 @@ import (
 	"gitlab.fixb.com/mir/push/storage"
 )
 
+// Handlers holds the handler functions to be run with different routes.
 type Handlers struct {
 	stg *storage.Storage
 }
@@ -26,7 +27,7 @@ func (hnd *Handlers) createApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	str, _ := json.Marshal(app)
-	hnd.stg.CreateApp(app.Id, string(str))
+	hnd.stg.CreateApp(app.ID, string(str))
 
 	res.WriteSuccess(w, 201, "")
 }
@@ -47,7 +48,7 @@ func (hnd *Handlers) updateApp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		str, _ := json.Marshal(app)
-		hnd.stg.CreateApp(app.Id, string(str))
+		hnd.stg.CreateApp(app.ID, string(str))
 	}
 
 	res.WriteSuccess(w, 200, "")
@@ -90,7 +91,7 @@ func (hnd *Handlers) addDevice(w http.ResponseWriter, r *http.Request) {
 			Token:     postData.Token,
 			CreatedAt: int(time.Now().Unix()),
 		}
-		err := hnd.stg.AddSubscriberDevice(appID, postData.SubscriberId, &device)
+		err := hnd.stg.AddSubscriberDevice(appID, postData.SubscriberID, &device)
 
 		if err != nil {
 			res.WriteError(w, 500, err.Error())
