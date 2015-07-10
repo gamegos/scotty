@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	// "errors"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -16,11 +15,16 @@ type Storage struct {
 }
 
 // AddSubscriber adds new subscriber to channel.
-func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs []string) {
+func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs []string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	stg.AddChannel(appID, channelID)
+	err := stg.AddChannel(appID, channelID)
+
+	if err != nil {
+		return err
+	}
+
 	subscribersKey := addPrefix("apps." + appID + ".channels." + channelID + ".subscribers")
 	tmpParams := append([]string{subscribersKey}, subscriberIDs...)
 
@@ -29,28 +33,50 @@ func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs 
 		params[i] = v
 	}
 
-	conn.Do("SADD", params...)
+	_, err = conn.Do("SADD", params...)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // AddChannel adds new channel to app.
-func (stg *Storage) AddChannel(appID string, channelID string) {
+func (stg *Storage) AddChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	channelsKey := addPrefix("apps." + appID + ".channels")
-	conn.Do("SADD", channelsKey, channelID)
+	_, err := conn.Do("SADD", channelsKey, channelID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteChannel deletes channel and its subscribers from app.
-func (stg *Storage) DeleteChannel(appID string, channelID string) {
+func (stg *Storage) DeleteChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	channelsKey := addPrefix("apps." + appID + ".channels")
-	conn.Do("SREM", channelsKey, channelID)
+	_, err := conn.Do("SREM", channelsKey, channelID)
+
+	if err != nil {
+		return err
+	}
 
 	channelKey := channelsKey + "." + channelID + ".subscribers"
-	conn.Do("DEL", channelKey)
+	_, err = conn.Do("DEL", channelKey)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // AddSubscriberDevice adds new device to subscriber.
@@ -59,16 +85,21 @@ func (stg *Storage) AddSubscriberDevice(appID string, subscriberID string, devic
 	defer conn.Close()
 
 	subscribersKey := addPrefix("apps." + appID + ".subscribers")
-	conn.Do("SADD", subscribersKey, subscriberID)
-
-	devicesKey := subscribersKey + "." + subscriberID + ".devices"
-	jstring, _ := json.Marshal(device)
-	// todo: multiple devices with same platform and token should not be added
-	_, err := conn.Do("HSET", devicesKey, device.Token, jstring)
+	_, err := conn.Do("SADD", subscribersKey, subscriberID)
 
 	if err != nil {
 		return err
 	}
+
+	devicesKey := subscribersKey + "." + subscriberID + ".devices"
+	jstring, _ := json.Marshal(device)
+	// todo: multiple devices with same platform and token should not be added
+	_, err = conn.Do("HSET", devicesKey, device.Token, jstring)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -79,11 +110,16 @@ func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDevi
 
 	key := addPrefix("apps." + appID + ".subscribers." + subscriberID + ".devices")
 	deviceData, err := redis.String(conn.Do("HGET", key, oldDeviceToken))
+
 	if err != nil {
 		return err
 	}
 
-	conn.Do("HDEL", key, oldDeviceToken)
+	_, err = conn.Do("HDEL", key, oldDeviceToken)
+
+	if err != nil {
+		return err
+	}
 
 	var device Device
 	decoder := json.NewDecoder(strings.NewReader(deviceData))
@@ -156,14 +192,25 @@ func (stg *Storage) AppExists(appID string) bool {
 }
 
 // CreateApp creates a new app.
-func (stg *Storage) CreateApp(appID string, appData string) {
+func (stg *Storage) CreateApp(appID string, appData string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	appsKey := addPrefix("apps")
-	conn.Do("SADD", appsKey, appID)
+	_, err := conn.Do("SADD", appsKey, appID)
+
+	if err != nil {
+		return err
+	}
+
 	appKey := appsKey + "." + appID
-	conn.Do("SET", appKey, appData)
+	_, err = conn.Do("SET", appKey, appData)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetApp gets an app's data.
