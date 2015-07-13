@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"flag"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,45 +12,44 @@ import (
 	"gitlab.fixb.com/mir/push/storage"
 )
 
-var appID, initialData, updatedData, channelID string
+var appID = "testapp"
+var channelID = "someRandomchannelID"
+var initialData = `{
+		"id": "` + appID + `",
+		"platforms": {
+				"apns": {
+						"certificate": "apnscertificate",
+						"privateKey": "privatekey"
+				},
+				"gcm": {
+						"projectId": "projectid",
+						"apiKey": "apikey"
+				}
+		}
+}`
+var updatedData = `
+{
+		"id": "` + appID + `",
+		"platforms": {
+				"apns": {
+						"certificate": "updatedapnscertificate",
+						"privateKey": "updatedprivatekey"
+				},
+				"gcm": {
+						"projectId": "updatedprojectid",
+						"apiKey": "updatedapikey"
+				}
+		}
+}`
+var confFile = flag.String("config", "", "Config file")
 var respRec *httptest.ResponseRecorder
 var router *mux.Router
 
 func setup() {
-	appID = "testapp"
-	initialData = `{
-	    "id": "` + appID + `",
-	    "platforms": {
-	        "apns": {
-	            "certificate": "apnscertificate",
-	            "privateKey": "privatekey"
-	        },
-	        "gcm": {
-	            "projectId": "projectid",
-	            "apiKey": "apikey"
-	        }
-	    }
-	}`
-	updatedData = `
-	{
-	    "id": "` + appID + `",
-	    "platforms": {
-	        "apns": {
-	            "certificate": "updatedapnscertificate",
-	            "privateKey": "updatedprivatekey"
-	        },
-	        "gcm": {
-	            "projectId": "updatedprojectid",
-	            "apiKey": "updatedapikey"
-	        }
-	    }
-	}`
-	channelID = "someRandomchannelID"
 
 	respRec = httptest.NewRecorder()
-	confFile := "../default.conf"
 
-	conf := storage.InitConfig(confFile)
+	conf := storage.InitConfig(*confFile)
 	stg := storage.Init(&conf.Redis)
 
 	router = NewRouter(stg)
