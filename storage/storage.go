@@ -214,16 +214,19 @@ func (stg *Storage) CreateApp(appID string, appData string) error {
 }
 
 // GetApp gets an app's data.
-func (stg *Storage) GetApp(appID string) (string, error) {
+func (stg *Storage) GetApp(appID string) (App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	appKey := addPrefix("apps") + "." + appID
 	value, err := redis.String(conn.Do("GET", appKey))
 	if err != nil {
-		return "", err
+		return App{}, err
 	}
-	return value, nil
+
+	var app App
+	json.Unmarshal([]byte(value), &app)
+	return app, nil
 }
 
 func addPrefix(key string) string {

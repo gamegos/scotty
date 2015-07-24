@@ -45,6 +45,12 @@ var confFile = flag.String("config", "", "Config file")
 var respRec *httptest.ResponseRecorder
 var router *mux.Router
 
+type jsonResponse struct {
+	Status  string          `json:"status"`
+	Data    json.RawMessage `json:"data,omitempty"`
+	Message string          `json:"message,omitempty"`
+}
+
 func setup() {
 
 	respRec = httptest.NewRecorder()
@@ -100,7 +106,7 @@ func TestGetApp(t *testing.T) {
 
 	router.ServeHTTP(respRec, req)
 
-	var response WrappedResponse
+	var response jsonResponse
 
 	decoder := json.NewDecoder(respRec.Body)
 
@@ -120,7 +126,7 @@ func TestGetApp(t *testing.T) {
 
 	updatedAppStr, _ := json.Marshal(app)
 
-	if response.Data.(string) != string(updatedAppStr) {
+	if string(response.Data) != string(updatedAppStr) {
 		t.Error("Received app data is not the same as updated data.")
 	}
 }

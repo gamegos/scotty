@@ -20,12 +20,11 @@ func NewRouter(stg *storage.Storage) *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	healthHandler := http.HandlerFunc(healthCheck)
 	router.
 		Methods("GET").
 		Path("/health").
 		Name("Health Check").
-		HandlerFunc(healthHandler)
+		HandlerFunc(hnd.getHealth)
 
 	router.
 		Methods("GET").
