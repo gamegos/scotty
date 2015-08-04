@@ -13,7 +13,7 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewRouter creates and returns the router.
-func NewRouter(stg *storage.Storage) *mux.Router {
+func NewRouter(stg storage.Storage) *mux.Router {
 
 	hnd := new(Handlers)
 	hnd.stg = stg

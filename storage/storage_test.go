@@ -13,7 +13,7 @@ var channelID = "someRandomchannelID"
 var subscriberIDs = []string{"sub_foo", "sub_bar"}
 var confFile = flag.String("config", "", "Config file")
 
-var stg *Storage
+var stg *RedisStorage
 
 func setup() {
 

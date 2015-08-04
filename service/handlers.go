@@ -13,7 +13,7 @@ import (
 
 // Handlers holds the handler functions to be run with different routes.
 type Handlers struct {
-	stg *storage.Storage
+	stg storage.Storage
 }
 
 type failResponse struct {

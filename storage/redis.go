@@ -9,13 +9,13 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// Storage records and retrieves data from data storage.
-type Storage struct {
+// RedisStorage records and retrieves data from data storage.
+type RedisStorage struct {
 	pool *redis.Pool
 }
 
 // AddSubscriber adds new subscriber to channel.
-func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs []string) error {
+func (stg *RedisStorage) AddSubscriber(appID string, channelID string, subscriberIDs []string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -43,7 +43,7 @@ func (stg *Storage) AddSubscriber(appID string, channelID string, subscriberIDs 
 }
 
 // AddChannel adds new channel to app.
-func (stg *Storage) AddChannel(appID string, channelID string) error {
+func (stg *RedisStorage) AddChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -58,7 +58,7 @@ func (stg *Storage) AddChannel(appID string, channelID string) error {
 }
 
 // DeleteChannel deletes channel and its subscribers from app.
-func (stg *Storage) DeleteChannel(appID string, channelID string) error {
+func (stg *RedisStorage) DeleteChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -80,7 +80,7 @@ func (stg *Storage) DeleteChannel(appID string, channelID string) error {
 }
 
 // AddSubscriberDevice adds new device to subscriber.
-func (stg *Storage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
+func (stg *RedisStorage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -104,7 +104,7 @@ func (stg *Storage) AddSubscriberDevice(appID string, subscriberID string, devic
 }
 
 // UpdateDeviceToken updates token of a subscriber's device.
-func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDeviceToken string, newDeviceToken string) error {
+func (stg *RedisStorage) UpdateDeviceToken(appID string, subscriberID string, oldDeviceToken string, newDeviceToken string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -139,7 +139,7 @@ func (stg *Storage) UpdateDeviceToken(appID string, subscriberID string, oldDevi
 }
 
 // GetChannelSubscribers gets subscribers of a channel.
-func (stg *Storage) GetChannelSubscribers(appID string, channelID string) ([]string, error) {
+func (stg *RedisStorage) GetChannelSubscribers(appID string, channelID string) ([]string, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -154,7 +154,7 @@ func (stg *Storage) GetChannelSubscribers(appID string, channelID string) ([]str
 }
 
 // GetSubscriberDevices gets devices of a subscriber.
-func (stg *Storage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
+func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -178,7 +178,7 @@ func (stg *Storage) GetSubscriberDevices(appID string, subscriberID string) ([]D
 }
 
 // AppExists tells whether an app exists or not.
-func (stg *Storage) AppExists(appID string) bool {
+func (stg *RedisStorage) AppExists(appID string) bool {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -192,7 +192,7 @@ func (stg *Storage) AppExists(appID string) bool {
 }
 
 // CreateApp creates a new app.
-func (stg *Storage) CreateApp(appID string, appData string) error {
+func (stg *RedisStorage) CreateApp(appID string, appData string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -214,7 +214,7 @@ func (stg *Storage) CreateApp(appID string, appData string) error {
 }
 
 // GetApp gets an app's data.
-func (stg *Storage) GetApp(appID string) (App, error) {
+func (stg *RedisStorage) GetApp(appID string) (App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -234,8 +234,8 @@ func addPrefix(key string) string {
 }
 
 // Init initializes storage with the given config.
-func Init(conf *RedisConfig) *Storage {
-	stg := new(Storage)
+func Init(conf *RedisConfig) *RedisStorage {
+	stg := new(RedisStorage)
 	pool := &redis.Pool{
 		MaxIdle:     conf.MaxIdle,
 		MaxActive:   conf.MaxActive,
