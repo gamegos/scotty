@@ -214,17 +214,17 @@ func (stg *RedisStorage) CreateApp(appID string, appData string) error {
 }
 
 // GetApp gets an app's data.
-func (stg *RedisStorage) GetApp(appID string) (App, error) {
+func (stg *RedisStorage) GetApp(appID string) (*App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	appKey := addPrefix("apps") + "." + appID
 	value, err := redis.String(conn.Do("GET", appKey))
 	if err != nil {
-		return App{}, err
+		return nil, err
 	}
 
-	var app App
+	var app *App
 	json.Unmarshal([]byte(value), &app)
 	return app, nil
 }

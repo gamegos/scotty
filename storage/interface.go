@@ -29,5 +29,5 @@ type Storage interface {
 	CreateApp(appID string, appData string) error
 
 	// GetApp gets an app's data.
-	GetApp(appID string) (App, error)
+	GetApp(appID string) (*App, error)
 }
