@@ -13,12 +13,10 @@ var channelID = "someRandomchannelID"
 var subscriberIDs = []string{"sub_foo", "sub_bar"}
 var confFile = flag.String("config", "", "Config file")
 
-var stg *RedisStorage
+var stg Storage
 
 func setup() {
-
-	var conf = InitConfig(*confFile)
-	stg = Init(&conf.Redis)
+	stg = NewMemStorage()
 }
 
 func TestCreateApp(t *testing.T) {
