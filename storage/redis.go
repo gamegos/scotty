@@ -154,7 +154,7 @@ func (stg *RedisStorage) GetChannelSubscribers(appID string, channelID string) (
 }
 
 // GetSubscriberDevices gets devices of a subscriber.
-func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
+func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*Device, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -167,11 +167,11 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 	}
 
 	var device Device
-	var response []Device
+	var response []*Device
 	for _, deviceData := range devices {
 		decoder := json.NewDecoder(strings.NewReader(deviceData))
 		decoder.Decode(&device)
-		response = append(response, device)
+		response = append(response, &device)
 	}
 
 	return response, nil

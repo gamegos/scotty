@@ -21,7 +21,7 @@ type Storage interface {
 	UpdateDeviceToken(appID string, subscriberID string, oldDeviceToken string, newDeviceToken string) error
 
 	// GetSubscriberDevices gets devices of a subscriber.
-	GetSubscriberDevices(appID string, subscriberID string) ([]Device, error)
+	GetSubscriberDevices(appID string, subscriberID string) ([]*Device, error)
 
 	// Channel methods
 

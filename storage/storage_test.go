@@ -2,7 +2,7 @@ package storage
 
 import (
 	"encoding/json"
-	"flag"
+	"os"
 	"reflect"
 	"sort"
 	"testing"
@@ -11,16 +11,15 @@ import (
 var appID = "fritestapp"
 var channelID = "someRandomchannelID"
 var subscriberIDs = []string{"sub_foo", "sub_bar"}
-var confFile = flag.String("config", "", "Config file")
 
 var stg Storage
 
-func setup() {
+func TestMain(m *testing.M) {
 	stg = NewMemStorage()
+	os.Exit(m.Run())
 }
 
 func TestCreateApp(t *testing.T) {
-	setup()
 
 	app := App{
 		ID: appID,
@@ -45,7 +44,6 @@ func TestCreateApp(t *testing.T) {
 }
 
 func TestGetApp(t *testing.T) {
-	setup()
 
 	_, err := stg.GetApp(appID)
 
@@ -55,7 +53,6 @@ func TestGetApp(t *testing.T) {
 }
 
 func TestAddChannel(t *testing.T) {
-	setup()
 
 	err := stg.AddChannel(appID, channelID)
 
@@ -65,7 +62,6 @@ func TestAddChannel(t *testing.T) {
 }
 
 func TestAddSubscriber(t *testing.T) {
-	setup()
 
 	err := stg.AddSubscriber(appID, channelID, subscriberIDs)
 
@@ -75,7 +71,6 @@ func TestAddSubscriber(t *testing.T) {
 }
 
 func TestGetChannelSubscribers(t *testing.T) {
-	setup()
 
 	receivedSubscribers, err := stg.GetChannelSubscribers(appID, channelID)
 
@@ -92,7 +87,6 @@ func TestGetChannelSubscribers(t *testing.T) {
 }
 
 func TestAddSubscriberDevice(t *testing.T) {
-	setup()
 
 	device := Device{
 		Platform:  "apns",
@@ -110,7 +104,6 @@ func TestAddSubscriberDevice(t *testing.T) {
 }
 
 func TestUpdateDeviceToken(t *testing.T) {
-	setup()
 
 	for _, subscriberID := range subscriberIDs {
 		err := stg.UpdateDeviceToken(appID, subscriberID, "footoken", "bartoken")
@@ -122,7 +115,6 @@ func TestUpdateDeviceToken(t *testing.T) {
 }
 
 func TestGetSubscriberDevices(t *testing.T) {
-	setup()
 
 	expectedDevice := Device{
 		Platform:  "apns",
@@ -137,13 +129,13 @@ func TestGetSubscriberDevices(t *testing.T) {
 	}
 
 	device := devices[0]
-	if !reflect.DeepEqual(expectedDevice, device) {
+
+	if !reflect.DeepEqual(expectedDevice, *device) {
 		t.Error("Device data does not match.")
 	}
 }
 
 func TestDeleteChannel(t *testing.T) {
-	setup()
 
 	err := stg.DeleteChannel(appID, channelID)
 

@@ -5,22 +5,24 @@ import (
 	"errors"
 )
 
+// MemStorage records and retrieves data from memory.
 type MemStorage struct {
-	// appid+channelid -> []subsctibers
+	// appid+channelid -> []subscribers
 	chans map[string][]string
 	// appid -> *App
 	apps map[string]*App
 	// appid+subscriberId -> Device
-	devs map[string]*Device
+	devs map[string][]*Device
 	// appid -> [subs1, subs2,...]
 	subs map[string][]string
 }
 
+// NewMemStorage initializes data structes to store data.
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		chans: make(map[string][]string),
 		apps:  make(map[string]*App),
-		devs:  make(map[string]*Device),
+		devs:  make(map[string][]*Device),
 		subs:  make(map[string][]string),
 	}
 }
@@ -37,11 +39,13 @@ func (stg *MemStorage) CreateApp(appID string, appData string) error {
 
 	var app *App
 	err := json.Unmarshal([]byte(appData), &app)
-	if err != nil {
-		stg.apps[appID] = app
-	}
 
-	return err
+	if err != nil {
+		return err
+	}
+	stg.apps[appID] = app
+
+	return nil
 }
 
 // GetApp gets an app's data.
@@ -49,7 +53,7 @@ func (stg *MemStorage) GetApp(appID string) (*App, error) {
 	app, ok := stg.apps[appID]
 
 	if !ok {
-		return nil, errors.New("not exits")
+		return nil, errors.New("not exists")
 	}
 
 	return app, nil
@@ -91,7 +95,7 @@ func (stg *MemStorage) DeleteChannel(appID string, channelID string) error {
 func (stg *MemStorage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
 	key := appID + "." + subscriberID
 
-	stg.devs[key] = device
+	stg.devs[key] = append(stg.devs[key], device)
 
 	return nil
 }
@@ -99,17 +103,34 @@ func (stg *MemStorage) AddSubscriberDevice(appID string, subscriberID string, de
 // UpdateDeviceToken updates token of a subscriber's device.
 func (stg *MemStorage) UpdateDeviceToken(appID string, subscriberID string, oldDeviceToken string, newDeviceToken string) error {
 
+	key := appID + "." + subscriberID
+	devices, ok := stg.devs[key]
+
+	if !ok {
+		return errors.New("Device not found.")
+	}
+
+	for _, device := range devices {
+		if device.Token == oldDeviceToken {
+			device.Token = newDeviceToken
+		}
+	}
+
 	return nil
 }
 
 // GetChannelSubscribers gets subscribers of a channel.
 func (stg *MemStorage) GetChannelSubscribers(appID string, channelID string) ([]string, error) {
 
-	return []string{}, nil
+	key := appID + "." + channelID
+	return stg.chans[key], nil
 }
 
 // GetSubscriberDevices gets devices of a subscriber.
-func (stg *MemStorage) GetSubscriberDevices(appID string, subscriberID string) ([]Device, error) {
+func (stg *MemStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*Device, error) {
 
-	return []Device{}, nil
+	key := appID + "." + subscriberID
+	device, _ := stg.devs[key]
+
+	return device, nil
 }
