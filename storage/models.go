@@ -1,5 +1,7 @@
 package storage
 
+import "github.com/gamegos/gcmlib"
+
 // App holds app data.
 type App struct {
 	ID        string   `json:"id"`
@@ -41,4 +43,11 @@ type AddDeviceRequest struct {
 // AddSubscriberRequest holds the structure of new subscriber request.
 type AddSubscriberRequest struct {
 	SubscriberIds []string `json:"subscribers"`
+}
+
+// PublishRequest represents http body of "publish" requests.
+type PublishRequest struct {
+	Subscribers []string `json:"subscribers"`
+	Channels    []string `json:"channels"`
+	Message     *gcmlib.Message
 }

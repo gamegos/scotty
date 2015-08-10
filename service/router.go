@@ -68,5 +68,11 @@ func NewRouter(stg storage.Storage) *mux.Router {
 		Name("Add Subscriber to Channel").
 		HandlerFunc(hnd.addSubscriber)
 
+	router.
+		Methods("POST").
+		Path("/apps/{appId}/publish").
+		Name("Publish a message").
+		HandlerFunc(hnd.publishMessage)
+
 	return router
 }
