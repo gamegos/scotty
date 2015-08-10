@@ -16,10 +16,6 @@ type Handlers struct {
 	stg storage.Storage
 }
 
-type failResponse struct {
-	Message string `json:"message"`
-}
-
 func (hnd *Handlers) getHealth(w http.ResponseWriter, r *http.Request) {
 	jsend.Wrap(w).Status(200).Send()
 }
@@ -32,7 +28,7 @@ func (hnd *Handlers) createApp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&app); err != nil {
-		jw.Status(400).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(400).Message(err.Error()).Send()
 		return
 	}
 
@@ -54,7 +50,7 @@ func (hnd *Handlers) updateApp(w http.ResponseWriter, r *http.Request) {
 	appID := vars["appId"]
 
 	if !hnd.stg.AppExists(appID) {
-		jw.Status(400).Data(&failResponse{Message: fmt.Sprintf("App %v does not exist.", appID)}).Send()
+		jw.Status(400).Message(fmt.Sprintf("App %v does not exist.", appID)).Send()
 		return
 	}
 
@@ -62,12 +58,12 @@ func (hnd *Handlers) updateApp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&app); err != nil {
-		jw.Status(400).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(400).Message(err.Error()).Send()
 		return
 	}
 
 	if appID != app.ID {
-		jw.Status(400).Data(&failResponse{Message: "AppID mismatch"}).Send()
+		jw.Status(400).Message("AppID mismatch").Send()
 		return
 	}
 
@@ -91,7 +87,7 @@ func (hnd *Handlers) getApp(w http.ResponseWriter, r *http.Request) {
 	appData, err := hnd.stg.GetApp(appID)
 
 	if err != nil {
-		jw.Status(404).Data(&failResponse{Message: "App not found."}).Send()
+		jw.Status(404).Message("App not found.").Send()
 		return
 	}
 
@@ -109,12 +105,12 @@ func (hnd *Handlers) addDevice(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&postData); err != nil {
-		jw.Status(400).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(400).Message(err.Error()).Send()
 		return
 	}
 
 	if !hnd.stg.AppExists(appID) {
-		jw.Status(400).Data(&failResponse{Message: "App not found."}).Send()
+		jw.Status(400).Message("App not found.").Send()
 		return
 	}
 
@@ -145,12 +141,12 @@ func (hnd *Handlers) addSubscriber(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&f); err != nil {
-		jw.Status(400).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(400).Message(err.Error()).Send()
 		return
 	}
 
 	if !hnd.stg.AppExists(appID) {
-		jw.Status(400).Data(&failResponse{Message: "App not found."}).Send()
+		jw.Status(400).Message("App not found.").Send()
 		return
 	}
 
@@ -175,21 +171,21 @@ func (hnd *Handlers) addChannel(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&f); err != nil {
-		jw.Status(400).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(400).Message(err.Error()).Send()
 		return
 	}
 
 	m := f.(map[string]interface{})
 
 	if !hnd.stg.AppExists(appID) {
-		jw.Status(400).Data(&failResponse{Message: "App not found."}).Send()
+		jw.Status(400).Message("App not found.").Send()
 		return
 	}
 
 	err := hnd.stg.AddChannel(appID, m["id"].(string))
 
 	if err != nil {
-		jw.Status(500).Data(&failResponse{Message: err.Error()}).Send()
+		jw.Status(500).Message(err.Error()).Send()
 		return
 	}
 

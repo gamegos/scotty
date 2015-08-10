@@ -9,7 +9,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// RedisStorage records and retrieves data from data storage.
+// RedisStorage records and retrieves data from Redis storage.
 type RedisStorage struct {
 	pool *redis.Pool
 }
