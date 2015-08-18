@@ -41,7 +41,7 @@ var updatedData = `
 				}
 		}
 }`
-var confFile = flag.String("config", "", "Config file")
+var confFile = flag.String("config", "../default.conf", "Config file")
 var respRec *httptest.ResponseRecorder
 var router *mux.Router
 

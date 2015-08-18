@@ -13,7 +13,7 @@ import (
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	confFile := flag.String("config", "", "Config file")
+	confFile := flag.String("config", "default.conf", "Config file")
 	flag.Parse()
 
 	conf := storage.InitConfig(*confFile)
