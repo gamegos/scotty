@@ -17,10 +17,6 @@ var channelID = "someRandomchannelID"
 var initialData = `{
 		"id": "` + appID + `",
 		"platforms": {
-				"apns": {
-						"certificate": "apnscertificate",
-						"privateKey": "privatekey"
-				},
 				"gcm": {
 						"projectId": "projectid",
 						"apiKey": "apikey"
@@ -31,10 +27,6 @@ var updatedData = `
 {
 		"id": "` + appID + `",
 		"platforms": {
-				"apns": {
-						"certificate": "updatedapnscertificate",
-						"privateKey": "updatedprivatekey"
-				},
 				"gcm": {
 						"projectId": "updatedprojectid",
 						"apiKey": "updatedapikey"
@@ -134,7 +126,7 @@ func TestGetApp(t *testing.T) {
 func TestAddDevice(t *testing.T) {
 	setup()
 
-	postBody := strings.NewReader(`{"subscriberId": "randomSubId", "platform": "apns", "token": "foo123"}`)
+	postBody := strings.NewReader(`{"subscriberId": "randomSubId", "platform": "gcm", "token": "foo123"}`)
 	req, err := http.NewRequest("POST", "/apps/"+appID+"/devices", postBody)
 
 	if err != nil {

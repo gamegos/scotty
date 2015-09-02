@@ -24,10 +24,6 @@ func TestCreateApp(t *testing.T) {
 	app := App{
 		ID: appID,
 		Platforms: Platform{
-			Apns: Apns{
-				Certificate: "apnscertificate",
-				PrivateKey:  "privatekey",
-			},
 			Gcm: Gcm{
 				APIKey:    "apikey",
 				ProjectID: "projectid",
@@ -89,7 +85,7 @@ func TestGetChannelSubscribers(t *testing.T) {
 func TestAddSubscriberDevice(t *testing.T) {
 
 	device := Device{
-		Platform:  "apns",
+		Platform:  "gcm",
 		Token:     "footoken",
 		CreatedAt: 1436546411,
 	}
@@ -117,7 +113,7 @@ func TestUpdateDeviceToken(t *testing.T) {
 func TestGetSubscriberDevices(t *testing.T) {
 
 	expectedDevice := Device{
-		Platform:  "apns",
+		Platform:  "gcm",
 		Token:     "bartoken",
 		CreatedAt: 1436546411,
 	}

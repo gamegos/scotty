@@ -10,14 +10,7 @@ type App struct {
 
 // Platform holds platform data.
 type Platform struct {
-	Apns Apns `json:"apns"`
-	Gcm  Gcm  `json:"gcm"`
-}
-
-// Apns holds APNS(Apple Push Notification Service) data.
-type Apns struct {
-	Certificate string `json:"certificate"`
-	PrivateKey  string `json:"privateKey"`
+	Gcm Gcm `json:"gcm"`
 }
 
 // Gcm holds GCM(Google Cloud Messaging) data.
