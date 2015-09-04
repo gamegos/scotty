@@ -1,10 +1,10 @@
-# Push Service
+# Scotty push notification service
 
 ## Installation
 
 Install binary with go get:
 ```
-go get gitlab.fixb.com/mir/push
+go get github.com/gamegos/scotty
 ```
 
 ## Running
@@ -26,7 +26,7 @@ go test -v --config=/path/to/config.conf
 
 1. Clone repository
 ```
-git clone git@gitlab.fixb.com:mir/push.git
+git clone git@github.com:gamegos/scotty.git
 ```
 
 2. Run server

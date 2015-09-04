@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"runtime"
 
-	"gitlab.fixb.com/mir/push/service"
-	"gitlab.fixb.com/mir/push/storage"
+	"github.com/gamegos/scotty/service"
+	"github.com/gamegos/scotty/storage"
 )
 
 func main() {
@@ -20,6 +20,6 @@ func main() {
 	stg := storage.Init(&conf.Redis)
 
 	router := service.NewRouter(stg)
-	log.Printf("Push service listening on %s", conf.Addr)
+	log.Printf("scotty service listening on %s", conf.Addr)
 	log.Fatal(http.ListenAndServe(conf.Addr, router))
 }

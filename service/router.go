@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"gitlab.fixb.com/mir/push/storage"
+	"github.com/gamegos/scotty/storage"
 )
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {

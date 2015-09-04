@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"gitlab.fixb.com/mir/push/storage"
+	"github.com/gamegos/scotty/storage"
 )
 
 var appID = "testapp"
