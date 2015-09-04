@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/gamegos/scotty/storage"
+	"github.com/gorilla/mux"
 )
 
 var appID = "testapp"

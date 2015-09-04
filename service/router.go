@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/gamegos/scotty/storage"
+	"github.com/gorilla/mux"
 )
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {

@@ -9,8 +9,8 @@ import (
 
 	"github.com/gamegos/gcmlib"
 	"github.com/gamegos/jsend"
-	"github.com/gorilla/mux"
 	"github.com/gamegos/scotty/storage"
+	"github.com/gorilla/mux"
 )
 
 // Handlers holds the handler functions to be run with different routes.
