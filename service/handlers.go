@@ -248,7 +248,7 @@ func (hnd *Handlers) publishMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := gcmlib.NewClient(gcmlib.Config{
-		APIKey: app.Platforms.Gcm.APIKey,
+		APIKey: app.GCM.APIKey,
 	})
 
 	msg := publishReq.Message

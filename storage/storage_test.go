@@ -23,11 +23,9 @@ func TestCreateApp(t *testing.T) {
 
 	app := App{
 		ID: appID,
-		Platforms: Platform{
-			Gcm: Gcm{
-				APIKey:    "apikey",
-				ProjectID: "projectid",
-			},
+		GCM: GCMConfig{
+			APIKey:    "apikey",
+			ProjectID: "projectid",
 		},
 	}
 

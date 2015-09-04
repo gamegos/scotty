@@ -4,17 +4,12 @@ import "github.com/gamegos/gcmlib"
 
 // App holds app data.
 type App struct {
-	ID        string   `json:"id"`
-	Platforms Platform `json:"platforms"`
+	ID  string    `json:"id"`
+	GCM GCMConfig `json:"gcm"`
 }
 
-// Platform holds platform data.
-type Platform struct {
-	Gcm Gcm `json:"gcm"`
-}
-
-// Gcm holds GCM(Google Cloud Messaging) data.
-type Gcm struct {
+// GCMConfig holds GCM(Google Cloud Messaging) data.
+type GCMConfig struct {
 	APIKey    string `json:"apiKey"`
 	ProjectID string `json:"projectId"`
 }

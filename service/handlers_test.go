@@ -16,21 +16,17 @@ var appID = "testapp"
 var channelID = "someRandomchannelID"
 var initialData = `{
 		"id": "` + appID + `",
-		"platforms": {
-				"gcm": {
-						"projectId": "projectid",
-						"apiKey": "apikey"
-				}
+		"gcm": {
+				"projectId": "projectid",
+				"apiKey": "apikey"
 		}
 }`
 var updatedData = `
 {
 		"id": "` + appID + `",
-		"platforms": {
-				"gcm": {
-						"projectId": "updatedprojectid",
-						"apiKey": "updatedapikey"
-				}
+		"gcm": {
+				"projectId": "updatedprojectid",
+				"apiKey": "updatedapikey"
 		}
 }`
 var confFile = flag.String("config", "../default.conf", "Config file")
