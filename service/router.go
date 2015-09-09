@@ -1,16 +1,9 @@
 package service
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/gamegos/scotty/storage"
 	"github.com/gorilla/mux"
 )
-
-func healthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "OK")
-}
 
 // NewRouter creates and returns the router.
 func NewRouter(stg storage.Storage) *mux.Router {
