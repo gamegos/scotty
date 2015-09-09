@@ -13,6 +13,25 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// addDeviceRequest holds the structure of new device request.
+type addDeviceRequest struct {
+	SubscriberID string `json:"subscriberId"`
+	Platform     string `json:"platform"`
+	Token        string `json:"token"`
+}
+
+// addSubscriberRequest holds the structure of new subscriber request.
+type addSubscriberRequest struct {
+	SubscriberIds []string `json:"subscribers"`
+}
+
+// publishRequest represents http body of "publish" requests.
+type publishRequest struct {
+	Subscribers []string `json:"subscribers"`
+	Channels    []string `json:"channels"`
+	Message     *gcmlib.Message
+}
+
 // Handlers holds the handler functions to be run with different routes.
 type Handlers struct {
 	stg storage.Storage
@@ -102,7 +121,7 @@ func (hnd *Handlers) addDevice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	appID := vars["appId"]
 
-	var postData storage.AddDeviceRequest
+	var postData addDeviceRequest
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -138,7 +157,7 @@ func (hnd *Handlers) addSubscriber(w http.ResponseWriter, r *http.Request) {
 	appID := vars["appId"]
 	channelID := vars["channelId"]
 
-	var f storage.AddSubscriberRequest
+	var f addSubscriberRequest
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -222,7 +241,7 @@ func (hnd *Handlers) publishMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publishReq := new(storage.PublishRequest)
+	publishReq := new(publishRequest)
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&publishReq); err != nil {
