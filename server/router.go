@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"github.com/gamegos/scotty/storage"
