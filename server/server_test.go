@@ -2,14 +2,12 @@ package server
 
 import (
 	"encoding/json"
-	"flag"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/gamegos/scotty/storage"
-	"github.com/gorilla/mux"
 )
 
 var appID = "testapp"
@@ -29,9 +27,6 @@ var updatedData = `
 				"apiKey": "updatedapikey"
 		}
 }`
-var confFile = flag.String("config", "../default.conf", "Config file")
-var respRec *httptest.ResponseRecorder
-var router *mux.Router
 
 type jsonResponse struct {
 	Status  string          `json:"status"`
@@ -39,64 +34,64 @@ type jsonResponse struct {
 	Message string          `json:"message,omitempty"`
 }
 
-func setup() {
+var (
+	testServer *Server
+)
 
-	respRec = httptest.NewRecorder()
+func init() {
+	stg := storage.NewMemStorage()
+	testServer = Init(stg)
+}
 
-	conf := storage.InitConfig(*confFile)
-	stg := storage.Init(&conf.Redis)
+func apiCall(method string, urlStr string, bodyStr string) (*httptest.ResponseRecorder, error) {
+	req, err := http.NewRequest(method, urlStr, strings.NewReader(bodyStr))
 
-	router = NewRouter(stg)
+	if err != nil {
+		return nil, err
+	}
+
+	w := httptest.NewRecorder()
+	testServer.router.ServeHTTP(w, req)
+
+	return w, nil
 }
 
 func TestCreateApp(t *testing.T) {
-	setup()
-
-	postBody := strings.NewReader(initialData)
-	req, err := http.NewRequest("POST", "/apps", postBody)
+	postBody := initialData
+	res, err := apiCall("POST", "/apps", postBody)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusCreated {
-		t.Error("App could not be created.", respRec.Code, respRec.Body)
+	if res.Code != http.StatusCreated {
+		t.Error("App could not be created.", res.Code, res.Body)
 	}
 }
 
 func TestUpdateApp(t *testing.T) {
-	setup()
-
-	postBody := strings.NewReader(updatedData)
-	req, err := http.NewRequest("PUT", "/apps/"+appID, postBody)
+	postBody := updatedData
+	res, err := apiCall("PUT", "/apps/"+appID, postBody)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusOK {
+	if res.Code != http.StatusOK {
 		t.Error("App could not be updated.")
 	}
 }
 
 func TestGetApp(t *testing.T) {
-	setup()
-
-	req, err := http.NewRequest("GET", "/apps/"+appID, nil)
+	res, err := apiCall("GET", "/apps/"+appID, "")
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
 	var response jsonResponse
 
-	decoder := json.NewDecoder(respRec.Body)
+	decoder := json.NewDecoder(res.Body)
 
 	if err := decoder.Decode(&response); err != nil {
 		t.Error(err)
@@ -120,68 +115,52 @@ func TestGetApp(t *testing.T) {
 }
 
 func TestAddDevice(t *testing.T) {
-	setup()
-
-	postBody := strings.NewReader(`{"subscriberId": "randomSubId", "platform": "gcm", "token": "foo123"}`)
-	req, err := http.NewRequest("POST", "/apps/"+appID+"/devices", postBody)
+	postBody := `{"subscriberId": "randomSubId", "platform": "gcm", "token": "foo123"}`
+	res, err := apiCall("POST", "/apps/"+appID+"/devices", postBody)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusCreated {
+	if res.Code != http.StatusCreated {
 		t.Error("Subscriber device could not be added.")
 	}
 }
 
 func TestAddChannel(t *testing.T) {
-	setup()
-
-	postBody := strings.NewReader(`{"id": "` + channelID + `"}`)
-	req, err := http.NewRequest("POST", "/apps/"+appID+"/channels", postBody)
+	postBody := `{"id": "` + channelID + `"}`
+	res, err := apiCall("POST", "/apps/"+appID+"/channels", postBody)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusCreated {
+	if res.Code != http.StatusCreated {
 		t.Error("Channel could not be added.")
 	}
 }
 
 func TestAddSubscriber(t *testing.T) {
-	setup()
-
-	postBody := strings.NewReader(`{"subscribers": ["foo", "bar"]}`)
-	req, err := http.NewRequest("POST", "/apps/"+appID+"/channels/"+channelID+"/subscribers", postBody)
+	postBody := `{"subscribers": ["foo", "bar"]}`
+	res, err := apiCall("POST", "/apps/"+appID+"/channels/"+channelID+"/subscribers", postBody)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusCreated {
+	if res.Code != http.StatusCreated {
 		t.Error("Subscriber device could not be added.")
 	}
 }
 
 func TestDeleteChannel(t *testing.T) {
-	setup()
-
-	req, err := http.NewRequest("DELETE", "/apps/"+appID+"/channels/"+channelID, nil)
+	res, err := apiCall("DELETE", "/apps/"+appID+"/channels/"+channelID, "")
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	router.ServeHTTP(respRec, req)
-
-	if respRec.Code != http.StatusOK {
+	if res.Code != http.StatusOK {
 		t.Error("Channel could not be deleted.")
 	}
 }
