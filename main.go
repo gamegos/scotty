@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"net/http"
 	"runtime"
 
 	"github.com/gamegos/scotty/server"
@@ -19,7 +18,7 @@ func main() {
 	conf := storage.InitConfig(*confFile)
 	stg := storage.Init(&conf.Redis)
 
-	router := server.NewRouter(stg)
-	log.Printf("scotty server listening on %s", conf.Addr)
-	log.Fatal(http.ListenAndServe(conf.Addr, router))
+	log.Printf("starting scotty server on %s", conf.Addr)
+	s := server.Init(stg)
+	log.Fatal(s.Run(conf.Addr))
 }
