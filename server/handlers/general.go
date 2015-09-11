@@ -10,3 +10,7 @@ import (
 func GetHealth(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) {
 	jw.Status(200).Data("ok")
 }
+
+func NotfoundHandler(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) {
+	jw.Status(404).Message("route not found")
+}

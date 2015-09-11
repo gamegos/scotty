@@ -105,5 +105,7 @@ func initRouter(ctx *context.Context) *mux.Router {
 		Name("Publish a message").
 		Handler(wrap(handlers.PublishMessage))
 
+	router.NotFoundHandler = wrap(handlers.NotfoundHandler)
+
 	return router
 }
