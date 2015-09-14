@@ -177,12 +177,14 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 	return response, nil
 }
 
+var appsKey = addPrefix("apps")
+
 // AppExists tells whether an app exists or not.
 func (stg *RedisStorage) AppExists(appID string) bool {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	status, err := redis.Int(conn.Do("SISMEMBER", addPrefix("apps"), appID))
+	status, err := redis.Int(conn.Do("HEXISTS", appsKey, appID))
 
 	if status == 0 || err != nil {
 		return false
@@ -202,15 +204,7 @@ func (stg *RedisStorage) PutApp(app *App) error {
 		return err
 	}
 
-	appsKey := addPrefix("apps")
-	if _, err := conn.Do("SADD", appsKey, appID); err != nil {
-		return err
-	}
-
-	appKey := appsKey + "." + appID
-	_, err = conn.Do("SET", appKey, appData)
-
-	if err != nil {
+	if _, err := conn.Do("HSET", appsKey, appID, appData); err != nil {
 		return err
 	}
 
@@ -222,14 +216,16 @@ func (stg *RedisStorage) GetApp(appID string) (*App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	appKey := addPrefix("apps") + "." + appID
-	value, err := redis.String(conn.Do("GET", appKey))
+	value, err := redis.Bytes(conn.Do("HGET", appsKey, appID))
 	if err != nil {
 		return nil, err
 	}
 
 	var app *App
-	json.Unmarshal([]byte(value), &app)
+	if err := json.Unmarshal(value, &app); err != nil {
+		return nil, err
+	}
+
 	return app, nil
 }
 
