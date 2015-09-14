@@ -6,8 +6,8 @@ type Storage interface {
 	// AppExists tells whether an app exists or not.
 	AppExists(appID string) bool
 
-	// CreateApp creates a new app.
-	CreateApp(appID string, appData string) error
+	// PutApp creates a new app or updates existing one.
+	PutApp(app *App) error
 
 	// GetApp gets an app's data.
 	GetApp(appID string) (*App, error)

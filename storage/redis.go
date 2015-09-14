@@ -191,15 +191,19 @@ func (stg *RedisStorage) AppExists(appID string) bool {
 	return true
 }
 
-// CreateApp creates a new app.
-func (stg *RedisStorage) CreateApp(appID string, appData string) error {
+// PutApp creates a new app or updates existing one.
+func (stg *RedisStorage) PutApp(app *App) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	appsKey := addPrefix("apps")
-	_, err := conn.Do("SADD", appsKey, appID)
-
+	appID := app.ID
+	appData, err := json.Marshal(app)
 	if err != nil {
+		return err
+	}
+
+	appsKey := addPrefix("apps")
+	if _, err := conn.Do("SADD", appsKey, appID); err != nil {
 		return err
 	}
 

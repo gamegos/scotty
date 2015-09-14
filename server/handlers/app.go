@@ -20,7 +20,7 @@ type addDeviceRequest struct {
 }
 
 func CreateApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) {
-	var app storage.App
+	var app *storage.App
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -29,8 +29,7 @@ func CreateApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) 
 		return
 	}
 
-	str, _ := json.Marshal(app)
-	err := ctx.Storage.CreateApp(app.ID, string(str))
+	err := ctx.Storage.PutApp(app)
 
 	if err != nil {
 		jw.Status(500).Message(err.Error()).Send()
@@ -49,7 +48,7 @@ func UpdateApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) 
 		return
 	}
 
-	var app storage.App
+	var app *storage.App
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&app); err != nil {
@@ -62,8 +61,7 @@ func UpdateApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) 
 		return
 	}
 
-	str, _ := json.Marshal(app)
-	err := ctx.Storage.CreateApp(app.ID, string(str))
+	err := ctx.Storage.PutApp(app)
 
 	if err != nil {
 		jw.Status(500).Message(err.Error()).Send()

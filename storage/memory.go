@@ -1,9 +1,6 @@
 package storage
 
-import (
-	"encoding/json"
-	"errors"
-)
+import "errors"
 
 // MemStorage records and retrieves data from memory.
 type MemStorage struct {
@@ -34,16 +31,9 @@ func (stg *MemStorage) AppExists(appID string) bool {
 	return ok
 }
 
-// CreateApp creates a new app.
-func (stg *MemStorage) CreateApp(appID string, appData string) error {
-
-	var app *App
-	err := json.Unmarshal([]byte(appData), &app)
-
-	if err != nil {
-		return err
-	}
-	stg.apps[appID] = app
+// PutApp creates a new app or updates existing one.
+func (stg *MemStorage) PutApp(app *App) error {
+	stg.apps[app.ID] = app
 
 	return nil
 }

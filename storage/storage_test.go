@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"encoding/json"
 	"os"
 	"reflect"
 	"sort"
@@ -19,9 +18,9 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestCreateApp(t *testing.T) {
+func TestPutApp(t *testing.T) {
 
-	app := App{
+	app := &App{
 		ID: appID,
 		GCM: GCMConfig{
 			APIKey:    "apikey",
@@ -29,8 +28,7 @@ func TestCreateApp(t *testing.T) {
 		},
 	}
 
-	str, _ := json.Marshal(app)
-	err := stg.CreateApp(appID, string(str))
+	err := stg.PutApp(app)
 
 	if err != nil {
 		t.Error(err)
