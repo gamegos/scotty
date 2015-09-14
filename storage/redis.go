@@ -2,7 +2,6 @@ package storage
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -25,7 +24,7 @@ func (stg *RedisStorage) AddSubscriber(appID string, channelID string, subscribe
 		return err
 	}
 
-	subscribersKey := addPrefix("apps." + appID + ".channels." + channelID + ".subscribers")
+	subscribersKey := keyChannelSubscribers(appID, channelID)
 	tmpParams := append([]string{subscribersKey}, subscriberIDs...)
 
 	params := make([]interface{}, len(tmpParams))
@@ -47,7 +46,7 @@ func (stg *RedisStorage) AddChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	channelsKey := addPrefix("apps." + appID + ".channels")
+	channelsKey := keyAppChannels(appID)
 	_, err := conn.Do("SADD", channelsKey, channelID)
 
 	if err != nil {
@@ -62,14 +61,14 @@ func (stg *RedisStorage) DeleteChannel(appID string, channelID string) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	channelsKey := addPrefix("apps." + appID + ".channels")
+	channelsKey := keyAppChannels(appID)
 	_, err := conn.Do("SREM", channelsKey, channelID)
 
 	if err != nil {
 		return err
 	}
 
-	channelKey := channelsKey + "." + channelID + ".subscribers"
+	channelKey := keyChannelSubscribers(appID, channelID)
 	_, err = conn.Do("DEL", channelKey)
 
 	if err != nil {
@@ -84,14 +83,14 @@ func (stg *RedisStorage) AddSubscriberDevice(appID string, subscriberID string, 
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	subscribersKey := addPrefix("apps." + appID + ".subscribers")
+	subscribersKey := keyAppSubscribers(appID)
 	_, err := conn.Do("SADD", subscribersKey, subscriberID)
 
 	if err != nil {
 		return err
 	}
 
-	devicesKey := subscribersKey + "." + subscriberID + ".devices"
+	devicesKey := keySubscriberDevices(appID, subscriberID)
 	jstring, _ := json.Marshal(device)
 	// todo: multiple devices with same platform and token should not be added
 	_, err = conn.Do("HSET", devicesKey, device.Token, jstring)
@@ -108,7 +107,7 @@ func (stg *RedisStorage) UpdateDeviceToken(appID string, subscriberID string, ol
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	key := addPrefix("apps." + appID + ".subscribers." + subscriberID + ".devices")
+	key := keySubscriberDevices(appID, subscriberID)
 	deviceData, err := redis.String(conn.Do("HGET", key, oldDeviceToken))
 
 	if err != nil {
@@ -143,7 +142,7 @@ func (stg *RedisStorage) GetChannelSubscribers(appID string, channelID string) (
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	key := addPrefix("apps." + appID + ".channels." + channelID + ".subscribers")
+	key := keyChannelSubscribers(appID, channelID)
 	subscribers, err := redis.Strings(conn.Do("SMEMBERS", key))
 
 	if err != nil {
@@ -158,7 +157,7 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	key := addPrefix("apps." + appID + ".subscribers." + subscriberID + ".devices")
+	key := keySubscriberDevices(appID, subscriberID)
 
 	var devices map[string]string
 	devices, err := redis.StringMap(conn.Do("HGETALL", key))
@@ -177,14 +176,12 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 	return response, nil
 }
 
-var appsKey = addPrefix("apps")
-
 // AppExists tells whether an app exists or not.
 func (stg *RedisStorage) AppExists(appID string) bool {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	status, err := redis.Int(conn.Do("HEXISTS", appsKey, appID))
+	status, err := redis.Int(conn.Do("HEXISTS", keyApps(), appID))
 
 	if status == 0 || err != nil {
 		return false
@@ -204,7 +201,7 @@ func (stg *RedisStorage) PutApp(app *App) error {
 		return err
 	}
 
-	if _, err := conn.Do("HSET", appsKey, appID, appData); err != nil {
+	if _, err := conn.Do("HSET", keyApps(), appID, appData); err != nil {
 		return err
 	}
 
@@ -216,7 +213,7 @@ func (stg *RedisStorage) GetApp(appID string) (*App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	value, err := redis.Bytes(conn.Do("HGET", appsKey, appID))
+	value, err := redis.Bytes(conn.Do("HGET", keyApps(), appID))
 	if err != nil {
 		return nil, err
 	}
@@ -227,10 +224,6 @@ func (stg *RedisStorage) GetApp(appID string) (*App, error) {
 	}
 
 	return app, nil
-}
-
-func addPrefix(key string) string {
-	return fmt.Sprintf("srv.push.%s", key)
 }
 
 // Init initializes storage with the given config.
@@ -256,4 +249,30 @@ func Init(conf *RedisConfig) *RedisStorage {
 	}
 	stg.pool = pool
 	return stg
+}
+
+const redisPrefix = "scotty"
+
+func buildKey(part ...string) string {
+	return redisPrefix + ":" + strings.Join(part, ".")
+}
+
+func keyApps() string {
+	return buildKey("apps")
+}
+
+func keyAppSubscribers(appID string) string {
+	return buildKey("apps", appID, "subs")
+}
+
+func keyAppChannels(appID string) string {
+	return buildKey("apps", appID, "chans")
+}
+
+func keyChannelSubscribers(appID, channelID string) string {
+	return buildKey("apps", appID, "chans", channelID, "subs")
+}
+
+func keySubscriberDevices(appID, subscriberID string) string {
+	return buildKey("apps", appID, "subs", subscriberID, "devs")
 }
