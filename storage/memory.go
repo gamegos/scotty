@@ -24,13 +24,6 @@ func NewMemStorage() *MemStorage {
 	}
 }
 
-// AppExists tells whether an app exists or not.
-func (stg *MemStorage) AppExists(appID string) bool {
-	_, ok := stg.apps[appID]
-
-	return ok
-}
-
 // PutApp creates a new app or updates existing one.
 func (stg *MemStorage) PutApp(app *App) error {
 	stg.apps[app.ID] = app

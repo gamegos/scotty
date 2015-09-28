@@ -3,9 +3,6 @@ package storage
 type Storage interface {
 	// App methods
 
-	// AppExists tells whether an app exists or not.
-	AppExists(appID string) bool
-
 	// PutApp creates a new app or updates existing one.
 	PutApp(app *App) error
 

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -43,8 +42,12 @@ func UpdateApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) 
 	vars := mux.Vars(r)
 	appID := vars["appId"]
 
-	if !ctx.Storage.AppExists(appID) {
-		jw.Status(400).Message(fmt.Sprintf("App %v does not exist.", appID)).Send()
+	if app, err := ctx.Storage.GetApp(appID); app == nil {
+		if err != nil {
+			jw.Status(500).Message(err.Error())
+		} else {
+			jw.Status(404).Message("App not found.")
+		}
 		return
 	}
 
@@ -75,14 +78,19 @@ func GetApp(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) {
 	vars := mux.Vars(r)
 	appID := vars["appId"]
 
-	appData, err := ctx.Storage.GetApp(appID)
+	app, err := ctx.Storage.GetApp(appID)
 
 	if err != nil {
-		jw.Status(404).Message("App not found.").Send()
+		jw.Status(500).Message(err.Error())
 		return
 	}
 
-	jw.Status(200).Data(appData).Send()
+	if app == nil {
+		jw.Status(404).Message("App not found.")
+		return
+	}
+
+	jw.Data(app)
 }
 
 func AddDevice(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) {
@@ -98,8 +106,12 @@ func AddDevice(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context) 
 		return
 	}
 
-	if !ctx.Storage.AppExists(appID) {
-		jw.Status(400).Message("App not found.").Send()
+	if app, err := ctx.Storage.GetApp(appID); app == nil {
+		if err != nil {
+			jw.Status(500).Message(err.Error())
+		} else {
+			jw.Status(404).Message("App not found.")
+		}
 		return
 	}
 

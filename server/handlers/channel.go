@@ -28,8 +28,12 @@ func AddSubscriber(jw jsend.JResponseWriter, r *http.Request, ctx *context.Conte
 		return
 	}
 
-	if !ctx.Storage.AppExists(appID) {
-		jw.Status(400).Message("App not found.").Send()
+	if app, err := ctx.Storage.GetApp(appID); app == nil {
+		if err != nil {
+			jw.Status(500).Message(err.Error())
+		} else {
+			jw.Status(404).Message("App not found.")
+		}
 		return
 	}
 
@@ -58,8 +62,12 @@ func AddChannel(jw jsend.JResponseWriter, r *http.Request, ctx *context.Context)
 
 	m := f.(map[string]interface{})
 
-	if !ctx.Storage.AppExists(appID) {
-		jw.Status(400).Message("App not found.").Send()
+	if app, err := ctx.Storage.GetApp(appID); app == nil {
+		if err != nil {
+			jw.Status(500).Message(err.Error())
+		} else {
+			jw.Status(404).Message("App not found.")
+		}
 		return
 	}
 

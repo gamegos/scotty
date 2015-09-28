@@ -176,20 +176,6 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 	return response, nil
 }
 
-// AppExists tells whether an app exists or not.
-func (stg *RedisStorage) AppExists(appID string) bool {
-	conn := stg.pool.Get()
-	defer conn.Close()
-
-	status, err := redis.Int(conn.Do("HEXISTS", keyApps(), appID))
-
-	if status == 0 || err != nil {
-		return false
-	}
-
-	return true
-}
-
 // PutApp creates a new app or updates existing one.
 func (stg *RedisStorage) PutApp(app *App) error {
 	conn := stg.pool.Get()
