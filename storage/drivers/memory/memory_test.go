@@ -1,28 +1,30 @@
-package storage
+package memory
 
 import (
 	"os"
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/gamegos/scotty/storage"
 )
 
 var appID = "fritestapp"
 var channelID = "someRandomchannelID"
 var subscriberIDs = []string{"sub_foo", "sub_bar"}
 
-var stg Storage
+var stg storage.Storage
 
 func TestMain(m *testing.M) {
-	stg = NewMemStorage()
+	stg = New()
 	os.Exit(m.Run())
 }
 
 func TestPutApp(t *testing.T) {
 
-	app := &App{
+	app := &storage.App{
 		ID: appID,
-		GCM: GCMConfig{
+		GCM: storage.GCMConfig{
 			APIKey:    "apikey",
 			ProjectID: "projectid",
 		},
@@ -80,7 +82,7 @@ func TestGetChannelSubscribers(t *testing.T) {
 
 func TestAddSubscriberDevice(t *testing.T) {
 
-	device := Device{
+	device := storage.Device{
 		Platform:  "gcm",
 		Token:     "footoken",
 		CreatedAt: 1436546411,
@@ -108,7 +110,7 @@ func TestUpdateDeviceToken(t *testing.T) {
 
 func TestGetSubscriberDevices(t *testing.T) {
 
-	expectedDevice := Device{
+	expectedDevice := storage.Device{
 		Platform:  "gcm",
 		Token:     "bartoken",
 		CreatedAt: 1436546411,

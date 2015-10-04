@@ -1,16 +1,16 @@
-package storage
+package redis
 
 import (
 	"encoding/json"
 	"strings"
-	"time"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gamegos/scotty/storage"
+	redigo "github.com/garyburd/redigo/redis"
 )
 
 // RedisStorage records and retrieves data from Redis storage.
 type RedisStorage struct {
-	pool *redis.Pool
+	pool *redigo.Pool
 }
 
 // AddSubscriber adds new subscriber to channel.
@@ -79,7 +79,7 @@ func (stg *RedisStorage) DeleteChannel(appID string, channelID string) error {
 }
 
 // AddSubscriberDevice adds new device to subscriber.
-func (stg *RedisStorage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
+func (stg *RedisStorage) AddSubscriberDevice(appID string, subscriberID string, device *storage.Device) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -108,7 +108,7 @@ func (stg *RedisStorage) UpdateDeviceToken(appID string, subscriberID string, ol
 	defer conn.Close()
 
 	key := keySubscriberDevices(appID, subscriberID)
-	deviceData, err := redis.String(conn.Do("HGET", key, oldDeviceToken))
+	deviceData, err := redigo.String(conn.Do("HGET", key, oldDeviceToken))
 
 	if err != nil {
 		return err
@@ -120,7 +120,7 @@ func (stg *RedisStorage) UpdateDeviceToken(appID string, subscriberID string, ol
 		return err
 	}
 
-	var device Device
+	var device storage.Device
 	decoder := json.NewDecoder(strings.NewReader(deviceData))
 
 	if err := decoder.Decode(&device); err != nil {
@@ -143,7 +143,7 @@ func (stg *RedisStorage) GetChannelSubscribers(appID string, channelID string) (
 	defer conn.Close()
 
 	key := keyChannelSubscribers(appID, channelID)
-	subscribers, err := redis.Strings(conn.Do("SMEMBERS", key))
+	subscribers, err := redigo.Strings(conn.Do("SMEMBERS", key))
 
 	if err != nil {
 		return nil, err
@@ -153,20 +153,20 @@ func (stg *RedisStorage) GetChannelSubscribers(appID string, channelID string) (
 }
 
 // GetSubscriberDevices gets devices of a subscriber.
-func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*Device, error) {
+func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*storage.Device, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
 	key := keySubscriberDevices(appID, subscriberID)
 
 	var devices map[string]string
-	devices, err := redis.StringMap(conn.Do("HGETALL", key))
+	devices, err := redigo.StringMap(conn.Do("HGETALL", key))
 	if err != nil {
 		return nil, err
 	}
 
-	var device Device
-	var response []*Device
+	var device storage.Device
+	var response []*storage.Device
 	for _, deviceData := range devices {
 		decoder := json.NewDecoder(strings.NewReader(deviceData))
 		decoder.Decode(&device)
@@ -177,7 +177,7 @@ func (stg *RedisStorage) GetSubscriberDevices(appID string, subscriberID string)
 }
 
 // PutApp creates a new app or updates existing one.
-func (stg *RedisStorage) PutApp(app *App) error {
+func (stg *RedisStorage) PutApp(app *storage.App) error {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
@@ -195,46 +195,21 @@ func (stg *RedisStorage) PutApp(app *App) error {
 }
 
 // GetApp gets an app's data.
-func (stg *RedisStorage) GetApp(appID string) (*App, error) {
+func (stg *RedisStorage) GetApp(appID string) (*storage.App, error) {
 	conn := stg.pool.Get()
 	defer conn.Close()
 
-	value, err := redis.Bytes(conn.Do("HGET", keyApps(), appID))
+	value, err := redigo.Bytes(conn.Do("HGET", keyApps(), appID))
 	if err != nil {
 		return nil, err
 	}
 
-	var app *App
+	var app *storage.App
 	if err := json.Unmarshal(value, &app); err != nil {
 		return nil, err
 	}
 
 	return app, nil
-}
-
-// Init initializes storage with the given config.
-func Init(conf *RedisConfig) *RedisStorage {
-	stg := new(RedisStorage)
-	pool := &redis.Pool{
-		MaxIdle:     conf.MaxIdle,
-		MaxActive:   conf.MaxActive,
-		IdleTimeout: time.Duration(conf.IdleTimeout) * time.Second,
-		Wait:        conf.Wait,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial(conf.Network, conf.Addr)
-			if err != nil {
-				return nil, err
-			}
-
-			return c, err
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			_, err := c.Do("PING")
-			return err
-		},
-	}
-	stg.pool = pool
-	return stg
 }
 
 const redisPrefix = "scotty"

@@ -1,42 +1,54 @@
-package storage
+package memory
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/gamegos/scotty/storage"
+)
 
 // MemStorage records and retrieves data from memory.
 type MemStorage struct {
 	// appid+channelid -> []subscribers
 	chans map[string][]string
-	// appid -> *App
-	apps map[string]*App
+	// appid -> *storage.App
+	apps map[string]*storage.App
 	// appid+subscriberId -> Device
-	devs map[string][]*Device
+	devs map[string][]*storage.Device
 	// appid -> [subs1, subs2,...]
 	subs map[string][]string
 }
 
-// NewMemStorage initializes data structes to store data.
-func NewMemStorage() *MemStorage {
+func init() {
+	storage.Register("memory", initDriver)
+}
+
+func initDriver(c map[string]interface{}) storage.Storage {
+	return New()
+}
+
+// New initializes memory storage driver.
+func New() *MemStorage {
 	return &MemStorage{
 		chans: make(map[string][]string),
-		apps:  make(map[string]*App),
-		devs:  make(map[string][]*Device),
+		apps:  make(map[string]*storage.App),
+		devs:  make(map[string][]*storage.Device),
 		subs:  make(map[string][]string),
 	}
 }
 
 // PutApp creates a new app or updates existing one.
-func (stg *MemStorage) PutApp(app *App) error {
+func (stg *MemStorage) PutApp(app *storage.App) error {
 	stg.apps[app.ID] = app
 
 	return nil
 }
 
 // GetApp gets an app's data.
-func (stg *MemStorage) GetApp(appID string) (*App, error) {
+func (stg *MemStorage) GetApp(appID string) (*storage.App, error) {
 	app, ok := stg.apps[appID]
 
 	if !ok {
-		return nil, errors.New("not exists")
+		return nil, nil
 	}
 
 	return app, nil
@@ -75,7 +87,7 @@ func (stg *MemStorage) DeleteChannel(appID string, channelID string) error {
 }
 
 // AddSubscriberDevice adds new device to subscriber.
-func (stg *MemStorage) AddSubscriberDevice(appID string, subscriberID string, device *Device) error {
+func (stg *MemStorage) AddSubscriberDevice(appID string, subscriberID string, device *storage.Device) error {
 	key := appID + "." + subscriberID
 
 	stg.devs[key] = append(stg.devs[key], device)
@@ -110,7 +122,7 @@ func (stg *MemStorage) GetChannelSubscribers(appID string, channelID string) ([]
 }
 
 // GetSubscriberDevices gets devices of a subscriber.
-func (stg *MemStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*Device, error) {
+func (stg *MemStorage) GetSubscriberDevices(appID string, subscriberID string) ([]*storage.Device, error) {
 
 	key := appID + "." + subscriberID
 	device, _ := stg.devs[key]
