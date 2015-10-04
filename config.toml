@@ -1,0 +1,12 @@
+[server]
+addr = ":9009"
+
+[storage]
+driver = "redis"
+
+[storage.options]
+Network     = "tcp"
+Addr        = ":6379"
+MaxIdle     = 1000
+MaxActive   = 10000
+IdleTimeout = 60
