@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/gamegos/scotty/storage"
+	memstorage "github.com/gamegos/scotty/storage/drivers/memory"
 )
 
 var appID = "testapp"
@@ -39,7 +40,7 @@ var (
 )
 
 func init() {
-	stg := storage.NewMemStorage()
+	stg := memstorage.New()
 	testServer = Init(stg)
 }
 
