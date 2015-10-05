@@ -1,4 +1,6 @@
-# Scotty push notification service
+# Scotty—push notification service
+
+**WORK IN PROGRESS. Things are likely to change.**
 
 ## Installation
 
@@ -10,26 +12,14 @@ go get github.com/gamegos/scotty
 ## Running
 To start the HTTP server and accept requests to the API, run:
 ```
-./push --config=/path/to/config.conf
+scotty -config=/path/to/config.toml
 ```
-By default, `default.conf` file in the same directory as the binary will be used as configuration.
+By default, `config.toml` file in the same directory as the binary will be used as configuration.
 
 ## Tests
-There are unit tests for `service` and `storage` packages.
-
-To run tests, switch to package's directory and run
 ```
-go test -v --config=/path/to/config.conf
+go test -v ./...
 ```
 
-## Develop
-
-1. Clone repository
-```
-git clone git@github.com:gamegos/scotty.git
-```
-
-2. Run server
-```
-go run main.go --config=/path/to/config.conf
-```
+## License
+MIT. See [LICENSE](./LICENSE).
